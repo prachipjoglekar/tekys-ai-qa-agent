@@ -1,0 +1,8 @@
+node_modules/
+reports/*
+!reports/README.md
+test-results/
+playwright-report/
+.env
+.env.local
+*.log
