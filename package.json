@@ -9,10 +9,15 @@
     "test:functional": "playwright test --project=functional",
     "test:security": "playwright test --project=security",
     "test:regression": "playwright test --project=regression",
+    "test:daily": "node scripts/send-report.js",
+    "report:html": "node scripts/build-html-report.js",
     "report": "playwright show-report reports/html"
   },
   "devDependencies": {
     "@playwright/test": "^1.47.0",
+    "archiver": "^7.0.1",
+    "dotenv": "^16.4.5",
+    "nodemailer": "^6.9.14",
     "typescript": "^5.5.0"
   }
 }

@@ -25,7 +25,13 @@ export default defineConfig({
   timeout: 60_000,
   reporter: [
     ['html', { outputFolder: 'reports/html', open: 'never' }],
+    ['json', { outputFile: 'reports/results.json' }],
     ['list'],
+    // Emails the report at the end of every run (any project, any trigger
+    // — terminal, VS Code Test Explorer, Task Scheduler, CI). Must stay
+    // last so the html/json reporters above have already finished writing
+    // their output by the time it runs. See scripts/email-reporter.js.
+    ['./scripts/email-reporter.js'],
   ],
   use: {
     baseURL: process.env.BASE_URL || 'https://tekyz.com',

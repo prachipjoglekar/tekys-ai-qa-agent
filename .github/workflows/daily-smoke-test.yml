@@ -1,0 +1,63 @@
+name: Daily Smoke Test — tekyz.com
+
+# Runs entirely on GitHub's servers — your machine does not need to be on.
+#
+# Schedule: 8:00 AM IST every day. GitHub Actions cron always runs in UTC,
+# and IST is UTC+5:30 with no daylight saving, so 8:00 AM IST = 2:30 AM UTC.
+# (GitHub may delay scheduled runs by a few minutes during periods of high
+# platform load — this is a GitHub-wide limitation, not something a
+# workflow can control.)
+on:
+  schedule:
+    - cron: '30 2 * * *'
+  # Lets you trigger a run on demand from the Actions tab, without waiting
+  # for the schedule — handy for testing this workflow itself.
+  workflow_dispatch:
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright's Chromium browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run smoke tests (emails the report automatically)
+        env:
+          BASE_URL: https://tekyz.com
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_SECURE: ${{ secrets.SMTP_SECURE }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+        run: npx playwright test --project=smoke
+        # Intentionally no "continue-on-error" here: if the smoke tests
+        # fail, this job should show red in the Actions tab too, not just
+        # rely on the email. The email-reporter already emails the report
+        # on both pass and fail before this step exits.
+
+      - name: Upload report as a build artifact (for debugging)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-test-report
+          path: |
+            reports/html
+            reports/email-report.html
+            reports/results.json
+            test-results
+          retention-days: 14
