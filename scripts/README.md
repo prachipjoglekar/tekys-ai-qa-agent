@@ -12,7 +12,8 @@ Emailing is wired in at the Playwright level, not into any one script:
 regardless of how it was started — `npx playwright test`, `npm run
 test:smoke`, VS Code's Test Explorer, Task Scheduler, or CI. See
 `.env.example` in the project root for SMTP config (`MAIL_TO` controls the
-recipient).
+recipient(s) — comma-separate multiple addresses, e.g.
+`prachi@tekyz.com,gayathri@tekyz.com`).
 
 - `email-reporter.js` — the Playwright reporter itself. Collects each
   test's pass/fail + duration as the run happens, then on completion zips
